@@ -9,7 +9,6 @@ from flask import Flask, flash, redirect, render_template, \
      request, session, url_for
 
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy.exc import IntegrityError  # new
 
 import datetime
 
