@@ -2,49 +2,25 @@
 {% block content %}
 
 <h1>Welcome to FlaskTaskr</h1>
+<br>
 <a href="/logout">Logout</a>
 
 
 <div class="add-task">
     <h3>Add a new task:</h3>
-    <table>
-        <tr>
 		   <!----action tag send the data to the url resides in that tag when submitted--->
-           <form action="{{ url_for('new_task') }}" method="post">
-                <td>
-                    <label>Task Name:</label>
-					<!-----The name attribute is used to reference form data after a form is submitted----->
-                    <input name="name" type="text">
-                </td>
-                <td>
-                    <label>Due date (mm/dd/yyyy):</label>
-                    <input name="due_date" type="text" width="120px">
-                </td>
-                <td>
-                    <label>Priority:</label>
-                    <select name="priority" width="100px">
-					    <!-----option tag defines an option in a select list----->
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                        <option value="9">9</option>
-                        <option value="10">10</option>
-                    </select>
-                </td>
-                <td>
-                    &nbsp;
-                    &nbsp;
-					<!------For 'button', 'reset' and 'submit', value defines the text on the button------>
-                    <input class="button" type="submit" value="Save">
-                </td>
-           </form>
-       </tr>
-    </table>
+        <form action="{{ url_for('new_task') }}" method="post">
+            {{ form.csrf_token }}
+		   <!--The above line applies the CSRF prevention setting to the form that we enabled in the configuration------>
+		   <!----It is needed as we are issuing a POST request--->
+            <p>
+              {{ form.name.label }}: {{ form.name }}<br>
+              {{ form.due_date.label }}: {{ form.due_date }}<br>
+              {{ form.priority.label }}: {{ form.priority }}
+            </p>
+			 <!------For 'button', 'reset' and 'submit', value defines the text on the button------>
+            <p><input type="submit" value="Submit"></p>
+        </form>
 </div>
 
 
@@ -56,54 +32,60 @@
        <table>
          <thead>
           <tr>
-            <th width="300px"><strong>Task Name</strong></th>
-            <th width="100px"><strong>Due Date</strong></th>
+            <th width="200px"><strong>Task Name</strong></th>
+            <th width="90px"><strong>Due Date</strong></th>
+            <th width="90px"><strong>Posted Date</strong></th>
             <th width="50px"><strong>Priority</strong></th>
+            <th width="100px"><strong>Name of the poster</strong></th>
             <th><strong>Actions</strong></th>
           </tr>
         </thead>
         {% for task in open_tasks %}
             <tr>
-               <td width="300px">{{ task.name }}</td>
-			   <td width="100px">{{ task.due_date }}</td>
-			   <td width="50px">{{ task.priority }}</td>
-			   <td>
-			       <a href="{{ url_for('delete_entry', task_id = task.task_id) }}">Delete</a>
-				   <a href="{{ url_for('complete', task_id = task.task_id) }}">Mark as Complete</a>
-			   </td>
-			</tr>
-		{% endfor %}
+               <td width="200px">{{ task.name }}</td>
+			         <td width="90px">{{ task.due_date }}</td>
+               <td width="90px">{{ task.posted_date }}</td>
+			         <td width="50px">{{ task.priority }}</td>
+               <td width="100px">{{ task.poster.name }}</td>
+			         <td>
+			           <a href="{{ url_for('delete_entry', task_id = task.task_id) }}">Delete</a>
+				         <a href="{{ url_for('complete', task_id = task.task_id) }}">Mark as Complete</a>
+			         </td>
+			       </tr>
+		    {% endfor %}
 	    </table>
-	</div>
-	<br>
-	<br>
+	 </div>
 </div>
+<br>
+<br>
 
 
 <div class="entries">
-   <br>
-   <br>
    <h2>Closed tasks:</h2>
    <div class="datagrid">
        <table>
          <thead>
           <tr>
-            <th width="300px"><strong>Task Name</strong></th>
-            <th width="100px"><strong>Due Date</strong></th>
+            <th width="200px"><strong>Task Name</strong></th>
+            <th width="90px"><strong>Due Date</strong></th>
+            <th width="90px"><strong>Posted Date</strong></th>
             <th width="50px"><strong>Priority</strong></th>
+            <th width="100px"><strong>Name of the poster</strong></th>
             <th><strong>Actions</strong></th>
           </tr>
         </thead>
         {% for task in closed_tasks %}
             <tr>
-               <td width="300px">{{ task.name }}</td>
-			   <td width="100px">{{ task.due_date }}</td>
-			   <td width="50px">{{ task.priority }}</td>
-			   <td>
-			       <a href="{{ url_for('delete_entry', task_id = task.task_id) }}">Delete</a>
-			   </td>
-			</tr>
-		{% endfor %}
+               <td width="200px">{{ task.name }}</td>
+               <td width="90px">{{ task.due_date }}</td>
+               <td width="90px">{{ task.posted_date }}</td>
+               <td width="50px">{{ task.priority }}</td>
+               <td width="100px">{{ task.poster.name }}</td>
+			         <td>
+			           <a href="{{ url_for('delete_entry', task_id = task.task_id) }}">Delete</a>
+			         </td>
+			      </tr>
+		    {% endfor %}
 	    </table>
 	</div>
 </div>

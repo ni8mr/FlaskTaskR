@@ -9,7 +9,7 @@ from datetime import date
 db.create_all()
 
 # inserting dummy datas
-db.session.add(Task("Finish this tutorial", date(2015, 3, 13), 10, 1))  # need to read about date()
+db.session.add(Task("Finish this tutorial", date(2015, 3, 13), 10, 1)) 
 db.session.add(Task("Finish Real Python", date(2015, 3, 13), 10, 1))
 
 # commiting the changes
