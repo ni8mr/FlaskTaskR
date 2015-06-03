@@ -15,8 +15,7 @@ class Task(db.Model):
 	status = db.Column(db.Integer)
 	user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
 
-	def __init__(self, name, due_date, priority, status, posted_date,
-                     user_id):
+	def __init__(self, name, due_date, priority, status, posted_date,user_id):
 		self.name = name
 		self.due_date = due_date
 		self.priority = priority

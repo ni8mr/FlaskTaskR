@@ -9,6 +9,7 @@ from flask import Flask, flash, redirect, render_template, \
      request, session, url_for
 
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 
 import datetime
 
@@ -33,6 +34,19 @@ def login_required(test):
             return redirect(url_for('login'))
     return wrap
 
+def flash_errors(form):
+    for field, errors in form.errors.items():
+        for error in errors:
+            flash(u"Error in the %s field- %s" % (\
+                getattr(form, field).label.text, error), 'error')
+
+
+def open_tasks():
+    return db.session.query(Task).filter_by(status='1').order_by(Task.due_date.asc())
+
+
+def closed_tasks():
+    return db.session.query(Task).filter_by(status='0').order_by(Task.due_date.asc())
 
 
 # route handlers
@@ -67,18 +81,16 @@ def login():
 @app.route('/tasks/')
 @login_required
 def tasks():
-    open_tasks = db.session.query(Task).filter_by(status='1').order_by(Task.due_date.asc())
-    closed_tasks = db.session.query(Task).filter_by(status='0').order_by(Task.due_date.asc())
-
     return render_template('tasks.html', form=AddTaskForm(request.form), 
-        open_tasks=open_tasks, 
-        closed_tasks = closed_tasks
+        open_tasks=open_tasks(), 
+        closed_tasks = closed_tasks()
         )
 
 # Adding new tasks
-@app.route('/add/', methods=['POST'])
+@app.route('/add/', methods=['GET','POST'])
 @login_required
 def new_task():
+    error = None
     form = AddTaskForm(request.form)
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -93,12 +105,10 @@ def new_task():
             db.session.add(new_task)
             db.session.commit()
             flash('New entry was successfully posted. Thanks.')
-            flash(session.keys())
             return redirect(url_for('tasks'))
-        else:
-            flash('All fields are required')
-            return redirect(url_for('tasks'))
-    return render_template('tasks.html', form=form)
+    return render_template('tasks.html', \
+        form=form, error=error, open_tasks=open_tasks(),\
+        closed_tasks=closed_tasks())
 
 
 # Marking tasks as complete
@@ -134,10 +144,14 @@ def register():
                 form.email.data,
                 form.password.data,
                 )
-            db.session.add(new_user)
-            db.session.commit()
-            flash('Thanks for registering. Please login.')
-            return redirect(url_for('login'))
+            try:
+                db.session.add(new_user)
+                db.session.commit()
+                flash('Thanks for registering. Please login.')
+                return redirect(url_for('login'))
+            except IntegrityError:
+                error = 'That username and/or email already exist.'
+                return render_template('register.html', form=form, error=error)
     return render_template('register.html', form=form, error=error)
 
 
