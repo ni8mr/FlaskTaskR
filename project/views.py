@@ -34,6 +34,7 @@ def login_required(test):
             return redirect(url_for('login'))
     return wrap
 
+
 def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
@@ -52,6 +53,7 @@ def closed_tasks():
 # route handlers
 
 @app.route('/logout/')
+@login_required
 def logout():
     session.pop('logged_in', None)
     session.pop('user_id', None)
