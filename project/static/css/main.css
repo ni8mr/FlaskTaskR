@@ -1,8 +1,17 @@
 body {
-  font-family: sans-serif;
-  background: #eee;
+  padding: 60px 0;
+  background: #ffffff;
 }
 
+
+.footer{
+  padding-top: 30px;
+}
+
+.error{
+  color: red;
+  font-size: .8em;
+}
 
 a, h1, h2 {
   color: #377BA8;

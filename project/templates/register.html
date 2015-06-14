@@ -6,7 +6,7 @@
   <form method="POST" action="/register/">
     {{ form.csrf_token }}
 	<p>
-		<!----placeholder specifies a short hint that describes the expected value of an input field---->
+		<!----placeholder specifies a short hint that describes the expected value of an input field (you can see it is written transparently in the field)---->
 	  {{ form.name(placeholder="name") }}
 	  {% if form.name.errors %}
 	    <span class="error">
@@ -15,6 +15,17 @@
 	    	{% endfor %}
 	    </span>
 	  {% endif %}
+	</p>
+	<p>
+	  {{ form.email(placeholder="email address") }}
+	  {% if form.email.errors %}
+	    <span class="error">
+		  {% for errors in form.email.errors %}
+		    {{ error }}
+		  {% endfor %}
+		</span>
+	  {% endif %}
+	</p>
 	<p>
 	  {{ form.password(placeholder="password") }}
 	  {% if form.password.errors %}
