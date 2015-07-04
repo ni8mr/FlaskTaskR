@@ -4,7 +4,7 @@
 import os
 import unittest
 
-from project import app, db
+from project import app, db, bcrypt
 from config import basedir
 from project.models import User
 
@@ -50,8 +50,10 @@ class UsersTests(unittest.TestCase):
     def logout(self):
         return self.app.get('logout/', follow_redirects=True)
 
-    def create_user(self, name, email, password):
-        new_user = User(name=name, email=email, password=password)
+    def create_user(self):
+        new_user = User(name='Michael', 
+            email='michael_herman@gmail.com', 
+            password=bcrypt.generate_password_hash('python'))
         db.session.add(new_user)
         db.session.commit()
 
@@ -176,6 +178,25 @@ class UsersTests(unittest.TestCase):
         users = db.session.query(User).all()
         for user in users:
             self.assertEqual(user.role, 'user')
+
+
+    def test_404_error(self):
+        response = self.app.get('/this-route-does-not-exist')
+        self.assertEquals(response.status_code, 404)
+        self.assertIn('Sorry. There\'s nothing here.', response.data)
+
+    def test_500_error(self):
+        bad_user = User(
+            name='Jeremy',
+            email='jeremy@realpython.com',
+            password='django'
+            )
+        db.session.add(bad_user)
+        db.session.commit()
+        response = self.login('Jeremy', 'django')
+        self.assertEquals(response.status_code, 500)
+        self.assertNotIn('ValueError: Invalid salt.', response.data)
+        self.assertIn('Something went terribly wrong.', response.data)
 
 
 if __name__ == "__main__":

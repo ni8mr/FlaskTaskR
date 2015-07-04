@@ -4,7 +4,7 @@
 import os
 import unittest
 
-from project import app, db
+from project import app, db, bcrypt
 from config import basedir
 from project.models import Task, User
 
@@ -51,8 +51,10 @@ class TasksTests(unittest.TestCase):
     def logout(self):
         return self.app.get('logout/', follow_redirects=True)
 
-    def create_user(self, name, email, password):
-        new_user = User(name=name, email=email, password=password)
+    def create_user(self):
+        new_user = User(name='Michael', 
+            email='michael_herman@gmail.com', 
+            password=bcrypt.generate_password_hash('python'))
         db.session.add(new_user)
         db.session.commit()
 
@@ -69,7 +71,7 @@ class TasksTests(unittest.TestCase):
         new_user = User(
             name='Superman',
             email='admin@realpython.com',
-            password='allpowerful',
+            password=bcrypt.generate_password_hash('allpowerful'),
             role='admin'
         )
         db.session.add(new_user)
@@ -257,6 +259,8 @@ class TasksTests(unittest.TestCase):
         self.assertIn('tasks/delete/1/', response.data)
         self.assertIn('tasks/complete/2/', response.data)
         self.assertIn('tasks/delete/2/', response.data)
+
+    
         
         
         
