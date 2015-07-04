@@ -49,7 +49,6 @@ def new_task():
                         flash('New entry is successfully posted. Thanks.')
                         return redirect(url_for('tasks.tasks'))
                 else:
-                        error = 'All field is required.'
                         return render_template('tasks.html',form=form,error=error)
         elif request.method == 'GET':
                 return render_template('tasks.html',form=form)

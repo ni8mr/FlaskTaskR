@@ -19,7 +19,7 @@
 			</span>
 			</p>
 			<p>
-			{{ form.due_date(placeholder="due_date") }}
+			{{ form.due_date(placeholder="due_date (mm/dd/yy)") }}
 			<span class="error">
 			   {% if form.due_date.errors %}
 			       {% for error in form.due_date.errors %}

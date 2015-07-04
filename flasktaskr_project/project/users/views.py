@@ -83,7 +83,6 @@ def register():
 				error = 'Sorry that username and/or email already exist.'
 				return render_template('register.html', form=form, error=error)
 		else:
-			error = 'All field should be filled up.'
 			return render_template('register.html', form=form, error=error)
 	elif request.method == 'GET':
 		return render_template('register.html', form=form)
