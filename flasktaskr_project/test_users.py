@@ -21,10 +21,12 @@ class UsersTests(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
+        app.config['DEBUG'] = False
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
             os.path.join(basedir, TEST_DB)
         self.app = app.test_client()
         db.create_all()
+        self.assertEquals(app.debug, False)
 
     # executed after each test
     def tearDown(self):
@@ -54,6 +56,15 @@ class UsersTests(unittest.TestCase):
         new_user = User(name='Michael', 
             email='michael_herman@gmail.com', 
             password=bcrypt.generate_password_hash('python'))
+        db.session.add(new_user)
+        db.session.commit()
+
+
+    def create_admin_user(self):
+        new_user = User(name='Superman', 
+            email = 'admin@realpython.com',
+            password=bcrypt.generate_password_hash('allpowerful'),
+            role='admin')
         db.session.add(new_user)
         db.session.commit()
 

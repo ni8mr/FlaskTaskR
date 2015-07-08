@@ -22,10 +22,13 @@ class TasksTests(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
+        app.config['DEBUG'] = False
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + \
             os.path.join(basedir, TEST_DB)
         self.app = app.test_client()
         db.create_all()
+        self.assertEquals(app.debug, False)
+
 
     # executed after each test
     def tearDown(self):
@@ -83,8 +86,8 @@ class TasksTests(unittest.TestCase):
     ###############
 
     def test_logged_in_users_can_access_tasks_page(self):
-        self.create_user('Fletcher', 'hello@gmail.com', 'python101', 'python101')
-        self.login('Fletcher', 'python101')
+        self.create_user()
+        self.login('Michael', 'python')
         response = self.app.get('tasks/tasks/')
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Add a new task:', response.data)
@@ -95,7 +98,7 @@ class TasksTests(unittest.TestCase):
 
 
     def test_users_can_add_tasks(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/', follow_redirects=True)
         response = self.create_task()
@@ -104,7 +107,7 @@ class TasksTests(unittest.TestCase):
         )
 
     def test_users_cannot_add_tasks_when_error(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/', follow_redirects=True)
         response = self.app.post('add/', data=dict(
@@ -117,7 +120,7 @@ class TasksTests(unittest.TestCase):
         self.assertIn(b'This field is required.', response.data)
 
     def test_users_can_complete_tasks(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/', follow_redirects=True)
         self.create_task()
@@ -125,7 +128,7 @@ class TasksTests(unittest.TestCase):
         self.assertIn(b'The task is complete. Nice.', response.data)
 
     def test_users_can_delete_tasks(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/', follow_redirects=True)
         self.create_task()
@@ -133,12 +136,16 @@ class TasksTests(unittest.TestCase):
         self.assertIn(b'The task was deleted.', response.data)
 
     def test_users_cannot_complete_tasks_that_are_not_created_by_them(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/', follow_redirects=True)
         self.create_task()
         self.logout()
-        self.create_user('Fletcher', 'fletcher@realpython.com', 'python101')
+        new_user = User(name='Fletcher', 
+            email='fletcher@realpython.com', 
+            password=bcrypt.generate_password_hash('python101'))
+        db.session.add(new_user)
+        db.session.commit()
         self.login('Fletcher', 'python101')
         self.app.get('tasks/', follow_redirects=True)
         response = self.app.get("complete/1/", follow_redirects=True)
@@ -150,12 +157,16 @@ class TasksTests(unittest.TestCase):
         )
 
     def test_users_cannot_delete_tasks_that_are_not_created_by_them(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/', follow_redirects=True)
         self.create_task()
         self.logout()
-        self.create_user('Fletcher', 'fletcher@realpython.com', 'python101')
+        new_user = User(name='Fletcher', 
+            email='fletcher@realpython.com', 
+            password=bcrypt.generate_password_hash('python101'))
+        db.session.add(new_user)
+        db.session.commit()
         self.login('Fletcher', 'python101')
         self.app.get('tasks/', follow_redirects=True)
         response = self.app.get("delete/1/", follow_redirects=True)
@@ -164,7 +175,7 @@ class TasksTests(unittest.TestCase):
         )
 
     def test_admin_users_can_complete_tasks_that_are_not_created_by_them(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/', follow_redirects=True)
         self.create_task()
@@ -178,7 +189,7 @@ class TasksTests(unittest.TestCase):
         )
 
     def test_admin_users_can_delete_tasks_that_are_not_created_by_them(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/', follow_redirects=True)
         self.create_task()
@@ -213,19 +224,23 @@ class TasksTests(unittest.TestCase):
 
 
     def test_task_template_displays_logged_in_user_name(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         response = self.app.get('tasks/tasks/', follow_redirects = True)
         self.assertIn('Michael', response.data)
 
 
     def test_users_cannot_see_task_modify_links_for_tasks_not_created_by_them(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/tasks/', follow_redirects = True)
         self.create_task()
         self.logout()
-        self.create_user('Fletcher', 'fletcher@realpython.com', 'python101')
+        new_user = User(name='Fletcher', 
+            email='fletcher@realpython.com', 
+            password=bcrypt.generate_password_hash('python101'))
+        db.session.add(new_user)
+        db.session.commit()
         response = self.login('Fletcher', 'python101')
         self.app.get('tasks/tasks/', follow_redirects = True)
         self.assertNotIn('Mark as complete', response.data)
@@ -233,12 +248,16 @@ class TasksTests(unittest.TestCase):
         
 
     def test_users_can_see_task_modify_links_for_tasks_created_by_them(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/tasks/', follow_redirects = True)
         self.create_task()
         self.logout()
-        self.create_user('Fletcher', 'fletcher@realpython.com', 'python101')
+        new_user = User(name='Fletcher', 
+            email='fletcher@realpython.com', 
+            password=bcrypt.generate_password_hash('python101'))
+        db.session.add(new_user)
+        db.session.commit()
         self.login('Fletcher', 'python101')
         self.app.get('tasks/tasks/', follow_redirects = True)
         response = self.create_task()
@@ -246,7 +265,7 @@ class TasksTests(unittest.TestCase):
         self.assertIn('tasks/complete/2/', response.data)
 
     def test_admin_users_can_see_task_modify_links_for_all_tasks(self):
-        self.create_user('Michael', 'michael@realpython.com', 'python')
+        self.create_user()
         self.login('Michael', 'python')
         self.app.get('tasks/tasks/', follow_redirects = True)
         self.create_task()

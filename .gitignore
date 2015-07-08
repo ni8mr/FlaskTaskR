@@ -6,3 +6,5 @@ __pycache__
 .coverage
 htmlcov
 cover
+ssh_key.txt
+ssh_key.txt.pub
