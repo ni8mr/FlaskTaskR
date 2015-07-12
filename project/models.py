@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 # project/models.py
 
 
 from views import db
+=======
+
+
+
+from project import db
+>>>>>>> 4eea7cbe8184a155e412abd8cecc532c3f6aad92
 
 import datetime
 
@@ -48,4 +55,9 @@ class User(db.Model):
         self.role = role
 
     def __repr__(self):
+<<<<<<< HEAD
         return '<User {0}>'.format(self.name)
+=======
+        return '<User {0}>'.format(self.name)
+
+>>>>>>> 4eea7cbe8184a155e412abd8cecc532c3f6aad92
