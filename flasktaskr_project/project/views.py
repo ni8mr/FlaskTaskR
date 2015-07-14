@@ -8,6 +8,7 @@
 from project import app, db
 from project.models import Task
 from flask import flash, redirect, session, url_for, render_template, request, jsonify, make_response
+from flask_restful import reqparse, abort, Api, Resource
 from functools import wraps
 import datetime
 
@@ -81,6 +82,30 @@ def task(task_id):
             code = 404
             
         return make_response(jsonify(result), code)
+
+
+# Tried to build the rest API with flask-restful
+
+
+#api = Api(app)
+
+
+#class Tasks(Resource):
+    #def get(self, show_materials):
+        #result = db.session.query(Task).filter_by(task_id=task_id).first()
+        #if result:
+            #return {'task_id': result.task_id,
+                #'task_name': result.name,
+                #'due date': str(result.due_date),
+                #'priority': result.priority,
+                #'posted date': str(result.posted_date),
+                #'status': result.status,
+                #'user id': result.user_id}
+
+#api.add_resource(Tasks, '/api/tasks/')
+        
+
+
         
 
 
