@@ -1,0 +1,17 @@
+# specify language
+language:
+ - python
+ 
+ 
+# specify python version
+python:
+ - "2.7.10"
+ 
+ 
+# install dependencies
+install:
+ - pip install -r requirements.txt
+ 
+# run tests:
+script:
+ - nosetests
